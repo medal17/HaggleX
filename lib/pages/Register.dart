@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hagglex/GraphQL/GraphQLClient.dart';
 import 'package:hagglex/GraphQL/Queries.dart';
@@ -31,9 +33,9 @@ class _RegisterState extends State<Register> {
     if (result.hasException) {
       print(result.exception);
     } else if (!result.hasException) {
-      print(result.data['getActiveCountries'][1]['name']);
+      print(result.data['getActiveCountries'][0]['name']);
       setState(() {
-        countriesCode = result.data['getActiveCountries'].toList();
+        countriesCode = result.data['getActiveCountries'];
         // print(countriesCode);
       });
     }
@@ -41,6 +43,7 @@ class _RegisterState extends State<Register> {
 
   bool hidden = true;
   List<String> countries = ['Nigeria', 'Ghana', 'Egypt'];
+  String dropdownValue = 'Nigeria';
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +130,7 @@ class _RegisterState extends State<Register> {
                                   child: GestureDetector(
                                 onTap: () => showSearch(
                                     context: context,
-                                    delegate: Search(countries)),
+                                    delegate: Search(countriesCode)),
                                 child: Container(
                                   margin: EdgeInsets.only(top: 18, right: 8),
                                   height: 40,
@@ -238,7 +241,7 @@ class Search extends SearchDelegate {
     query.isEmpty
         ? suggestiontList = listExample
         : suggestiontList.addAll(listExample);
-    //  print(suggestiontList);
+    // print(suggestiontList);
     return Container(
       color: darkColor,
       child: ListView.builder(

@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hagglex/config.dart';
-import 'package:hagglex/pages/ReVerifyAccount.dart';
 import 'package:hagglex/pages/SetupComplete.dart';
 import 'package:hagglex/widgets/Button.dart';
 import 'package:hagglex/widgets/TextInput.dart';
 
-class VerifyAccount extends StatefulWidget {
+class ReVerifyAccount extends StatefulWidget {
   @override
-  _VerifyAccountState createState() => _VerifyAccountState();
+  _ReVerifyAccountState createState() => _ReVerifyAccountState();
 }
 
-class _VerifyAccountState extends State<VerifyAccount> {
-  bool hidden = true;
-  List<String> countries = ['Nigeria', 'Ghana', 'Egypt'];
-
+class _ReVerifyAccountState extends State<ReVerifyAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +39,7 @@ class _VerifyAccountState extends State<VerifyAccount> {
           Container(
               margin: EdgeInsets.only(left: 40),
               child: Text(
-                'Verify Your Account',
+                'Resend Verification Code',
                 style: h4,
               )),
           Center(
@@ -69,13 +65,13 @@ class _VerifyAccountState extends State<VerifyAccount> {
                       ),
                       SizedBox(height: 15),
                       Text(
-                        'We just sent a verification code to your email please enter the code',
+                        'Input Your Email',
                         style: h5Dark,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 30),
                       TextInput(
-                        labelText: 'Verification code',
+                        labelText: 'Email',
                         mode: 'dark',
                         hideText: false,
                       ),
@@ -87,25 +83,7 @@ class _VerifyAccountState extends State<VerifyAccount> {
                                 MaterialPageRoute(
                                     builder: (_) => SetupComplete()));
                           },
-                          child: Button('VERIFY ME', 'gradient')),
-                      SizedBox(height: 15),
-                      Text(
-                        'The code will expire in ${10}',
-                        style: h6Dark,
-                      ),
-                      SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => ReVerifyAccount()));
-                        },
-                        child: Text(
-                          'Resend Code',
-                          style: h5Dark,
-                        ),
-                      ),
+                          child: Button('Submit', 'gradient')),
                     ],
                   ),
                 )),
