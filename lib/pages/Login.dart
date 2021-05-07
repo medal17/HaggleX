@@ -166,10 +166,12 @@ class _LoginState extends State<Login> {
                     style: text,
                   ),
                 ),
-
+                SizedBox(
+                  height: 20,
+                ),
                 GestureDetector(
-                  onTap: () => Navigator.push(
-                      context, MaterialPageRoute(builder: (_) => SetupComplete())),
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => SetupComplete())),
                   // alignment: Alignment.topRight,
                   child: Text(
                     'By-pass to setup complete',
