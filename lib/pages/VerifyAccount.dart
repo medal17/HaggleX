@@ -24,13 +24,13 @@ class _VerifyAccountState extends State<VerifyAccount> {
   Queries _query = Queries();
   List response = List();
 
-  Future login(email, password) async {
+  Future verify(code) async {
     GraphQLClient _client = _graphQLCoonfig.myGraphQLClient();
     QueryResult result = await _client.mutate(
       MutationOptions(
           documentNode:
               gql(_query.verify()),
-          variables: {'code': code.text.toString()},
+          variables: {'code': int.parse(code.text.toString())},
           onCompleted: (resultData) {
             print(resultData);
           }),
@@ -119,15 +119,17 @@ class _VerifyAccountState extends State<VerifyAccount> {
                       TextInput(
                         labelText: 'Verification code',
                         mode: 'dark',
+                        controller: code,
                         hideText: false,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: 30),
                       GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => SetupComplete()));
+                           if(code.text.toString().isNotEmpty){
+                             verify(code);
+                             print(code.text);
+                           }
                           },
                           child: Button('VERIFY ME', 'gradient')),
                       SizedBox(height: 15),

@@ -3,6 +3,7 @@ import 'package:hagglex/GraphQL/GraphQLClient.dart';
 import 'package:hagglex/GraphQL/Queries.dart';
 import 'package:hagglex/config.dart';
 import 'package:hagglex/pages/HomeScreen.dart';
+import 'package:hagglex/pages/SetupComplete.dart';
 import 'package:hagglex/widgets/TextInput.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'Register.dart';
@@ -162,6 +163,16 @@ class _LoginState extends State<Login> {
                   // alignment: Alignment.topRight,
                   child: Text(
                     'New User? Create an Account',
+                    style: text,
+                  ),
+                ),
+
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                      context, MaterialPageRoute(builder: (_) => SetupComplete())),
+                  // alignment: Alignment.topRight,
+                  child: Text(
+                    'By-pass to setup complete',
                     style: text,
                   ),
                 ),

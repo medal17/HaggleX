@@ -47,24 +47,24 @@ class _RegisterState extends State<Register> {
     if (result.hasException) {
       print(result.exception);
     } else if (!result.hasException) {
-      print(result.data['getActiveCountries'][0]['name']);
+      print(result.data);
       setState(() {
-        countriesCode = result.data['getActiveCountries'];
+        countriesCode = result.data;
         // print(countriesCode);
       });
     }
   }
 
 
-  Future signUp(email, password) async {
+  Future signUp(email, password, ref,user,phone) async {
     GraphQLClient _client = _graphQLCoonfig.myGraphQLClient();
     QueryResult result = await _client.mutate(
       MutationOptions(
           documentNode:
               gql(_query.signup()),
-          variables: {'email': email.toString(), 'password': password.toString(), 'ref': refController.toString(),
-          'phone': phoneController.toString(), 'username': userNameController.toString(), 'country': '', 
-          'phone': email.toString(), 'currency':'', 'code':'', 'flag':'',
+          variables: {'email': email, 'password': password, 'ref': ref,
+         'username': user, 'country': 'Nigeria', 
+          'phone': phone, 'currency':'naira', 'code':'232443433', 'flag':'ewjkwjkwkjkj',
           },
           onCompleted: (resultData) {
             print(resultData);
@@ -146,11 +146,13 @@ class _RegisterState extends State<Register> {
                             labelText: 'Email',
                             hideText: false,
                             mode: 'dark',
+                            controller: emailController,
                           ),
                           TextInput(
                               labelText: 'Password',
                               mode: 'dark',
                               hideText: hidden,
+                              controller: passwordController,
                               // ignore: missing_required_param
                               icon: IconButton(
                                 icon: Icon(
@@ -172,6 +174,7 @@ class _RegisterState extends State<Register> {
                             labelText: 'Create Username',
                             hideText: false,
                             mode: 'dark',
+                            controller: userNameController,
                           ),
 
                           Row(
@@ -205,6 +208,7 @@ class _RegisterState extends State<Register> {
                                   labelText: 'Phone Number',
                                   hideText: false,
                                   mode: 'dark',
+                                  controller: phoneController,
                                 ),
                               ),
                             ],
@@ -214,6 +218,7 @@ class _RegisterState extends State<Register> {
                             labelText: 'Referral Link',
                             hideText: false,
                             mode: 'dark',
+                            controller: refController,
                           ),
 
                           // SizedBox(height:20),
@@ -227,10 +232,16 @@ class _RegisterState extends State<Register> {
 
                           GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => VerifyAccount()));
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (_) => VerifyAccount()));
+                                if(emailController.text.toString().isEmpty){
+                                  print('fill all field');
+                                }else{
+                                  signUp(emailController.text.toString(), passwordController.text.toString(),
+                                  refController.text.toString(), userNameController.text.toString(), phoneController.text.toString());
+                                }
                               },
                               child: Container(
                                   child: Button('SIGN UP', 'gradient'))),

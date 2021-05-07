@@ -35,7 +35,7 @@ class Queries {
   String signup() {
     return r'''
      mutation Register($username: String!, $password: String!, $email: String!, $phone: String!, $ref: String!,
-     $country: String!, $currency:String!, $code:String!, $flag:String!) {
+     $country: String!, $currency: String!, $code: String!, $flag: String!) {
         register(
           data:{
               username: $username,
@@ -43,18 +43,16 @@ class Queries {
               email: $email,
               phonenumber: $phone,
               referralCode: $ref,
-              phoneNumberDetails: data:{
+              phoneNumberDetails:{
                     phoneNumber: $phone,
                     callingCode: $code,
                     flag: $flag
-              }
+              },
               country: $country,
               currency: $currency
-}
               }){    
               token   
       }
-   
   }
     ''';
   }

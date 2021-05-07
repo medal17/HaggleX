@@ -29,7 +29,7 @@ class _ReVerifyAccountState extends State<ReVerifyAccount> {
       QueryOptions(
           documentNode:
               gql(_query.ReVerify()),
-          variables: {'mail': email.text.toString()},
+          variables: {'mail': email.toString()},
           
     ));
     // (QueryOptions(documentNode: gql(_query.login(emailController.text.toString(), passwordController.text.toString())())));
@@ -122,10 +122,14 @@ class _ReVerifyAccountState extends State<ReVerifyAccount> {
                       SizedBox(height: 30),
                       GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => SetupComplete()));
+                            if(email.toString().isNotEmpty){
+                              verify(email.text.toString());
+                              print(email.text.toString());
+                            }
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: (_) => SetupComplete()));
                           },
                           child: Button('Submit', 'gradient')),
                     ],
