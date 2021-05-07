@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:hagglex/GraphQL/GraphQLClient.dart';
+import 'package:hagglex/GraphQL/Queries.dart';
 import 'package:hagglex/config.dart';
 import 'package:hagglex/pages/SetupComplete.dart';
+import 'package:hagglex/pages/VerifyAccount.dart';
 import 'package:hagglex/widgets/Button.dart';
 import 'package:hagglex/widgets/TextInput.dart';
 
@@ -10,6 +14,45 @@ class ReVerifyAccount extends StatefulWidget {
 }
 
 class _ReVerifyAccountState extends State<ReVerifyAccount> {
+
+  TextEditingController email = TextEditingController();
+  bool loading = false;
+  String errorMessage;
+
+  GraphQLCoonfig _graphQLCoonfig = GraphQLCoonfig();
+  Queries _query = Queries();
+  List response = List();
+
+  Future verify(email) async {
+    GraphQLClient _client = _graphQLCoonfig.myGraphQLClient();
+    QueryResult result = await _client.query(
+      QueryOptions(
+          documentNode:
+              gql(_query.ReVerify()),
+          variables: {'mail': email.text.toString()},
+          
+    ));
+    // (QueryOptions(documentNode: gql(_query.login(emailController.text.toString(), passwordController.text.toString())())));
+    if (result.hasException) {
+      print(result.exception);
+      setState(() {
+        loading = false;
+        errorMessage = 'Unable to Send Verification';
+      });
+    } else if (!result.hasException) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => VerifyAccount()));
+      print(result.data
+          // ['getActiveCountries'][1]['name']
+          );
+      setState(() {
+        response = result.data;
+        loading = false;
+        // print(countriesCode);
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,6 +117,7 @@ class _ReVerifyAccountState extends State<ReVerifyAccount> {
                         labelText: 'Email',
                         mode: 'dark',
                         hideText: false,
+                        controller: email,
                       ),
                       SizedBox(height: 30),
                       GestureDetector(
@@ -89,77 +133,6 @@ class _ReVerifyAccountState extends State<ReVerifyAccount> {
                 )),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class Search extends SearchDelegate {
-  List<String> countries;
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return <Widget>[
-      IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            query = "";
-          })
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-        icon: Icon(Icons.arrow_back_ios),
-        onPressed: () {
-          Navigator.pop(context);
-        });
-  }
-
-  String selectedResult;
-  @override
-  Widget buildResults(BuildContext context) {
-    return Container(
-      color: darkColor,
-      child: Center(child: Text(selectedResult != null ? selectedResult : '')),
-    );
-  }
-
-  final List<String> listExample;
-  Search(this.listExample);
-
-  List<String> recentList = ['text 4', 'Text'];
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    List<String> suggestiontList = [];
-
-    // print(_fetchData(context).length
-    query.isEmpty
-        ? suggestiontList = listExample
-        : suggestiontList.addAll(listExample);
-    //  print(suggestiontList);
-    return Container(
-      color: darkColor,
-      child: ListView.builder(
-        itemCount: listExample.length,
-        itemBuilder: (context, index) {
-          return suggestiontList.length > 0
-              ? ListTile(
-                  title: Text(
-                    suggestiontList[index].length > 0
-                        ? suggestiontList[index]
-                        : 'nothing',
-                    style: text,
-                  ),
-                  onTap: () {
-                    selectedResult = suggestiontList[index];
-                    showResults(context);
-                  },
-                )
-              : Center(child: Text('No gig found'));
-        },
       ),
     );
   }

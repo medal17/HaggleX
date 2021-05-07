@@ -11,6 +11,16 @@ class Queries {
     ''';
   }
 
+  String ReVerify() {
+    return r'''
+       query resendVerificationCode($mail: String!){ 
+        resendVerificationCode(data:{email:$mail})}
+      
+      
+    ''';
+  }
+
+
   String login(username, password) {
     return r'''
        mutation Login($userna: String!, $pass: String!){ 
@@ -22,21 +32,45 @@ class Queries {
     ''';
   }
 
-  String signup(username, password) {
+  String signup() {
     return r'''
-     mutation login(\$username: String!, \$password: String!) {
-        login(
+     mutation Register($username: String!, $password: String!, $email: String!, $phone: String!, $ref: String!,
+     $country: String!, $currency:String!, $code:String!, $flag:String!) {
+        register(
           data:{
-              input: $username,
+              username: $username,
               password: $password,
+              email: $email,
+              phonenumber: $phone,
+              referralCode: $ref,
+              phoneNumberDetails: data:{
+                    phoneNumber: $phone,
+                    callingCode: $code,
+                    flag: $flag
+              }
+              country: $country,
+              currency: $currency
+}
               }){    
               token   
       }
    
   }
-    '''
-        .replaceAll('\n', '');
+    ''';
   }
+
+String verify() {
+    return r'''
+       mutation verifyUser($code: Int!){ 
+        verifyUser(data:{code:$code}){
+          token
+        }}
+      
+      
+    ''';
+  }
+
+
 }
 
 // mutation createUser( $input: String!, $pass: String!) {

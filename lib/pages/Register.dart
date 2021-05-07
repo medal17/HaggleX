@@ -10,15 +10,29 @@ import 'package:hagglex/widgets/Button.dart';
 import 'package:hagglex/widgets/TextInput.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import 'HomeScreen.dart';
+
 class Register extends StatefulWidget {
   @override
   _RegisterState createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> {
+  //controllers
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController refController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  
+  bool loading =false;
+  String errormessage;
+
   GraphQLCoonfig _graphQLCoonfig = GraphQLCoonfig();
   Queries _query = Queries();
   List countriesCode = List();
+  List response = List();
+
 
   @override
   void initState() {
@@ -40,6 +54,42 @@ class _RegisterState extends State<Register> {
       });
     }
   }
+
+
+  Future signUp(email, password) async {
+    GraphQLClient _client = _graphQLCoonfig.myGraphQLClient();
+    QueryResult result = await _client.mutate(
+      MutationOptions(
+          documentNode:
+              gql(_query.signup()),
+          variables: {'email': email.toString(), 'password': password.toString(), 'ref': refController.toString(),
+          'phone': phoneController.toString(), 'username': userNameController.toString(), 'country': '', 
+          'phone': email.toString(), 'currency':'', 'code':'', 'flag':'',
+          },
+          onCompleted: (resultData) {
+            print(resultData);
+          }),
+    );
+    // (QueryOptions(documentNode: gql(_query.login(emailController.text.toString(), passwordController.text.toString())())));
+    if (result.hasException) {
+      print(result.exception);
+      setState(() {
+        loading = false;
+        errormessage = 'Invalid Credentials';
+      });
+    } else if (!result.hasException) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()));
+      print(result.data
+          // ['getActiveCountries'][1]['name']
+          );
+      setState(() {
+        response = result.data['getActiveCountries'].toList();
+        loading = false;
+        // print(countriesCode);
+      });
+    }
+  }
+
 
   bool hidden = true;
   List<String> countries = ['Nigeria', 'Ghana', 'Egypt'];
