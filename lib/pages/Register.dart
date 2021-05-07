@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hagglex/GraphQL/GraphQLClient.dart';
 import 'package:hagglex/GraphQL/Queries.dart';
@@ -8,15 +10,29 @@ import 'package:hagglex/widgets/Button.dart';
 import 'package:hagglex/widgets/TextInput.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import 'HomeScreen.dart';
+
 class Register extends StatefulWidget {
   @override
   _RegisterState createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> {
+  //controllers
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController refController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  
+  bool loading =false;
+  String errormessage;
+
   GraphQLCoonfig _graphQLCoonfig = GraphQLCoonfig();
   Queries _query = Queries();
   List countriesCode = List();
+  List response = List();
+
 
   @override
   void initState() {
@@ -31,16 +47,53 @@ class _RegisterState extends State<Register> {
     if (result.hasException) {
       print(result.exception);
     } else if (!result.hasException) {
-      print(result.data['getActiveCountries'][1]['name']);
+      print(result.data);
       setState(() {
-        countriesCode = result.data['getActiveCountries'].toList();
+        countriesCode = result.data;
         // print(countriesCode);
       });
     }
   }
 
+
+  Future signUp(email, password, ref,user,phone) async {
+    GraphQLClient _client = _graphQLCoonfig.myGraphQLClient();
+    QueryResult result = await _client.mutate(
+      MutationOptions(
+          documentNode:
+              gql(_query.signup()),
+          variables: {'email': email, 'password': password, 'ref': ref,
+         'username': user, 'country': 'Nigeria', 
+          'phone': phone, 'currency':'naira', 'code':'232443433', 'flag':'ewjkwjkwkjkj',
+          },
+          onCompleted: (resultData) {
+            print(resultData);
+          }),
+    );
+    // (QueryOptions(documentNode: gql(_query.login(emailController.text.toString(), passwordController.text.toString())())));
+    if (result.hasException) {
+      print(result.exception);
+      setState(() {
+        loading = false;
+        errormessage = 'Invalid Credentials';
+      });
+    } else if (!result.hasException) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()));
+      print(result.data
+          // ['getActiveCountries'][1]['name']
+          );
+      setState(() {
+        response = result.data['getActiveCountries'].toList();
+        loading = false;
+        // print(countriesCode);
+      });
+    }
+  }
+
+
   bool hidden = true;
   List<String> countries = ['Nigeria', 'Ghana', 'Egypt'];
+  String dropdownValue = 'Nigeria';
 
   @override
   Widget build(BuildContext context) {
@@ -93,11 +146,13 @@ class _RegisterState extends State<Register> {
                             labelText: 'Email',
                             hideText: false,
                             mode: 'dark',
+                            controller: emailController,
                           ),
                           TextInput(
                               labelText: 'Password',
                               mode: 'dark',
                               hideText: hidden,
+                              controller: passwordController,
                               // ignore: missing_required_param
                               icon: IconButton(
                                 icon: Icon(
@@ -119,6 +174,7 @@ class _RegisterState extends State<Register> {
                             labelText: 'Create Username',
                             hideText: false,
                             mode: 'dark',
+                            controller: userNameController,
                           ),
 
                           Row(
@@ -127,7 +183,7 @@ class _RegisterState extends State<Register> {
                                   child: GestureDetector(
                                 onTap: () => showSearch(
                                     context: context,
-                                    delegate: Search(countries)),
+                                    delegate: Search(countriesCode)),
                                 child: Container(
                                   margin: EdgeInsets.only(top: 18, right: 8),
                                   height: 40,
@@ -152,6 +208,7 @@ class _RegisterState extends State<Register> {
                                   labelText: 'Phone Number',
                                   hideText: false,
                                   mode: 'dark',
+                                  controller: phoneController,
                                 ),
                               ),
                             ],
@@ -161,6 +218,7 @@ class _RegisterState extends State<Register> {
                             labelText: 'Referral Link',
                             hideText: false,
                             mode: 'dark',
+                            controller: refController,
                           ),
 
                           // SizedBox(height:20),
@@ -174,10 +232,16 @@ class _RegisterState extends State<Register> {
 
                           GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => VerifyAccount()));
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (_) => VerifyAccount()));
+                                if(emailController.text.toString().isEmpty){
+                                  print('fill all field');
+                                }else{
+                                  signUp(emailController.text.toString(), passwordController.text.toString(),
+                                  refController.text.toString(), userNameController.text.toString(), phoneController.text.toString());
+                                }
                               },
                               child: Container(
                                   child: Button('SIGN UP', 'gradient'))),
@@ -238,7 +302,7 @@ class Search extends SearchDelegate {
     query.isEmpty
         ? suggestiontList = listExample
         : suggestiontList.addAll(listExample);
-    //  print(suggestiontList);
+    // print(suggestiontList);
     return Container(
       color: darkColor,
       child: ListView.builder(

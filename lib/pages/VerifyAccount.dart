@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:hagglex/GraphQL/GraphQLClient.dart';
+import 'package:hagglex/GraphQL/Queries.dart';
 import 'package:hagglex/config.dart';
+import 'package:hagglex/pages/HomeScreen.dart';
+import 'package:hagglex/pages/ReVerifyAccount.dart';
 import 'package:hagglex/pages/SetupComplete.dart';
 import 'package:hagglex/widgets/Button.dart';
 import 'package:hagglex/widgets/TextInput.dart';
@@ -10,8 +15,46 @@ class VerifyAccount extends StatefulWidget {
 }
 
 class _VerifyAccountState extends State<VerifyAccount> {
-  bool hidden = true;
-  List<String> countries = ['Nigeria', 'Ghana', 'Egypt'];
+
+  String errormessage;
+  bool loading = false;
+  TextEditingController code = TextEditingController();
+
+   GraphQLCoonfig _graphQLCoonfig = GraphQLCoonfig();
+  Queries _query = Queries();
+  List response = List();
+
+  Future verify(code) async {
+    GraphQLClient _client = _graphQLCoonfig.myGraphQLClient();
+    QueryResult result = await _client.mutate(
+      MutationOptions(
+          documentNode:
+              gql(_query.verify()),
+          variables: {'code': int.parse(code.text.toString())},
+          onCompleted: (resultData) {
+            print(resultData);
+          }),
+    );
+    // (QueryOptions(documentNode: gql(_query.login(emailController.text.toString(), passwordController.text.toString())())));
+    if (result.hasException) {
+      print(result.exception);
+      setState(() {
+        loading = false;
+        errormessage = 'Invalid Credentials';
+      });
+    } else if (!result.hasException) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()));
+      print(result.data
+          // ['getActiveCountries'][1]['name']
+          );
+      setState(() {
+        response = result.data;
+        loading = false;
+        // print(countriesCode);
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -76,15 +119,17 @@ class _VerifyAccountState extends State<VerifyAccount> {
                       TextInput(
                         labelText: 'Verification code',
                         mode: 'dark',
+                        controller: code,
                         hideText: false,
+                        keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: 30),
                       GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => SetupComplete()));
+                           if(code.text.toString().isNotEmpty){
+                             verify(code);
+                             print(code.text);
+                           }
                           },
                           child: Button('VERIFY ME', 'gradient')),
                       SizedBox(height: 15),
@@ -93,9 +138,17 @@ class _VerifyAccountState extends State<VerifyAccount> {
                         style: h6Dark,
                       ),
                       SizedBox(height: 10),
-                      Text(
-                        'Resend Code',
-                        style: h5Dark,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => ReVerifyAccount()));
+                        },
+                        child: Text(
+                          'Resend Code',
+                          style: h5Dark,
+                        ),
                       ),
                     ],
                   ),
